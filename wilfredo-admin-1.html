@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Wilfredo — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--card:#111;--card2:#0d0d0d;
+  --gold:#c9a84c;--gold2:#e0c06a;
+  --blue:#4a7fd4;--green:#3dba7e;--red:#e05555;
+  --cream:#f0ece0;--muted:#666;--muted2:#333;
+  --border:#1c1c1c;--border2:#252525;
+  --radius:14px;--r8:8px;
+}
+body{background:var(--bg);color:var(--cream);font-family:'Jost',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ─── MODE BAR ─── */
+.mode-bar{background:#000;border-bottom:1px solid var(--border);display:flex;justify-content:center;gap:8px;padding:10px 16px;position:sticky;top:0;z-index:200}
+.mode-btn{background:none;border:1px solid var(--border2);color:var(--muted);padding:7px 22px;border-radius:99px;font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em}
+.mode-btn.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600}
+
+.screen{display:none}.screen.active{display:block}
+
+/* ══════════════════════════════
+   LANDING PÚBLICA
+══════════════════════════════ */
+.hero{background:radial-gradient(ellipse at 50% 0%,rgba(74,127,212,.18) 0%,transparent 65%),#000;padding:56px 24px 44px;text-align:center}
+.logo-w{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;color:#000;font-weight:700;margin:0 auto 22px;box-shadow:0 0 48px rgba(201,168,76,.22)}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:58px;color:var(--gold);letter-spacing:.02em;line-height:1;margin-bottom:12px;font-weight:300}
+.hero-sub{font-size:13px;color:var(--muted);margin-bottom:8px;letter-spacing:.04em}
+.hero-loc{font-size:12px;color:var(--muted);margin-bottom:34px}
+.btn-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:15px 0;border-radius:99px;font-weight:600;font-size:14px;cursor:pointer;font-family:'Jost',sans-serif;letter-spacing:.05em;box-shadow:0 8px 28px rgba(201,168,76,.28);display:block;width:100%;max-width:300px;margin:0 auto 12px}
+.btn-outline{background:none;border:1px solid var(--border2);color:var(--muted);padding:14px 0;border-radius:99px;font-size:13px;cursor:pointer;font-family:'Jost',sans-serif;display:block;width:100%;max-width:300px;margin:0 auto}
+
+/* Marcas */
+.brands-section{padding:32px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#000}
+.brands-label{text-align:center;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.brands-row{display:flex;justify-content:center;align-items:center;gap:0}
+.brand-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px;border-right:1px solid var(--border);position:relative}
+.brand-item:last-child{border-right:none}
+
+/* Redken */
+.brand-redken{font-family:'Jost',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#c8c8c8}
+.brand-redken span{display:block;width:28px;height:2px;background:#c8c8c8;margin:4px auto 0}
+
+/* Kérastase */
+.brand-kerastase{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#d4af7a;line-height:1.2;text-align:center}
+.brand-kerastase em{font-style:normal;font-size:8px;display:block;letter-spacing:.25em;color:#8a7a5a;margin-top:2px}
+
+/* L'Oréal */
+.brand-loreal{font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:#e8d5a0;text-align:center}
+.brand-loreal em{font-style:normal;font-size:8px;display:block;letter-spacing:.3em;text-transform:uppercase;color:#7a6a50;margin-top:2px}
+
+/* Horario */
+.schedule-strip{padding:24px 20px;border-bottom:1px solid var(--border)}
+.section-hd{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:14px}
+.sch-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)}
+.sch-row:last-child{border-bottom:none}
+.sch-day{color:var(--muted)}
+.sch-time{color:var(--cream);font-weight:500}
+.sch-closed{color:var(--muted2)}
+.address{font-size:12px;color:var(--muted);margin-top:14px;display:flex;align-items:center;gap:6px}
+
+/* Booking flow */
+.booking-wrap{padding:22px 18px 48px}
+.bk-title{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:3px}
+.bk-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.bk-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px}
+.service-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.svc-btn{background:#0a0a0a;border:1px solid var(--border2);border-radius:var(--r8);padding:13px 10px;text-align:left;cursor:pointer;transition:all .2s;font-family:'Jost',sans-serif;color:var(--muted)}
+.svc-btn:hover{border-color:var(--muted);color:var(--cream)}
+.svc-btn.selected{border-color:var(--gold);background:rgba(201,168,76,.07);color:var(--cream)}
+.svc-name{font-size:12px;font-weight:500;display:block;margin-bottom:2px}
+.svc-price{font-size:10px;color:var(--muted)}
+.svc-btn.selected .svc-price{color:var(--gold)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:500}
+.field input,.field select{width:100%;background:#0a0a0a;border:1px solid var(--border2);border-radius:var(--r8);padding:11px 13px;color:var(--cream);font-family:'Jost',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--gold)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-next{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:var(--r8);padding:14px;font-weight:600;font-size:14px;cursor:pointer;font-family:'Jost',sans-serif;letter-spacing:.04em;margin-top:8px}
+.btn-next:disabled{opacity:.35;cursor:not-allowed}
+.btn-back-sm{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;padding:0;margin-bottom:14px;display:inline-flex;align-items:center;gap:5px}
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+.date-dn{text-align:center;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:5px 0}
+.date-btn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:12px;color:var(--muted);cursor:pointer;border:1px solid transparent;transition:all .15s}
+.date-btn.available{color:var(--cream)}
+.date-btn.available:hover{background:#1a1a1a}
+.date-btn.selected{background:var(--gold);color:#000;font-weight:700}
+.date-btn.closed,.date-btn.past{opacity:.2;pointer-events:none}
+.date-btn.empty{pointer-events:none}
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}
+.time-btn{background:#0a0a0a;border:1px solid var(--border2);border-radius:var(--r8);padding:10px 4px;text-align:center;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Jost',sans-serif}
+.time-btn:hover:not(.taken){border-color:var(--muted);color:var(--cream)}
+.time-btn.selected{background:var(--gold);border-color:var(--gold);color:#000;font-weight:600}
+.time-btn.taken{opacity:.25;pointer-events:none;text-decoration:line-through}
+.confirm-card{background:#0a0a0a;border:1px solid var(--border2);border-radius:var(--r8);padding:14px;margin-bottom:14px}
+.confirm-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.confirm-row:last-child{border-bottom:none}
+.confirm-lbl{color:var(--muted)}.confirm-val{color:var(--cream);font-weight:500;text-align:right}
+.success-wrap{text-align:center;padding:40px 20px}
+.success-icon{font-size:52px;margin-bottom:16px}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:8px}
+.success-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:24px}
+.wa-btn{background:#25d366;color:#fff;border:none;padding:14px 28px;border-radius:99px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Jost',sans-serif}
+
+/* ══════════════════════════════
+   ADMIN
+══════════════════════════════ */
+.adm-wrap{min-height:calc(100vh - 44px);padding-bottom:68px} .topbar{position:relative;top:auto;}
+.topbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#000;}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold)}
+.topbar-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.bnav{background:#000;border-top:1px solid var(--border);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;cursor:pointer;color:var(--muted);font-size:10px;border:none;background:none;font-family:'Jost',sans-serif;letter-spacing:.04em;transition:color .2s}
+.bnav-btn.active{color:var(--gold)}
+.bnav-icon{font-size:17px;line-height:1}
+.adm-screen{display:none}.adm-screen.active{display:block}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r8);padding:14px 10px;text-align:center;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:24px;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* Caja diaria */
+.caja-card{margin:0 14px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.caja-bar{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.caja-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.caja-title{font-family:'Cormorant Garamond',serif;font-size:16px}
+.caja-date{font-size:11px;color:var(--muted);margin-top:2px}
+.caja-total{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold);padding:16px;text-align:center}
+.caja-total-lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:-10px;padding-bottom:14px}
+.caja-row{display:flex;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);font-size:12px}
+.caja-key{color:var(--muted)}
+.caja-val{color:var(--cream);font-weight:500}
+
+/* Section label */
+.sec-lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:14px 14px 6px;font-weight:500}
+
+/* Reservas del día */
+.res-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r8);margin:0 14px 10px;padding:14px;display:flex;gap:12px;align-items:flex-start}
+.res-date-box{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:8px;padding:8px 10px;text-align:center;flex-shrink:0;min-width:48px}
+.res-day-num{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);line-height:1}
+.res-month{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.res-body{flex:1;min-width:0}
+.res-time{font-size:13px;color:var(--blue);font-weight:600;margin-bottom:3px}
+.res-name{font-family:'Cormorant Garamond',serif;font-size:14px;margin-bottom:2px}
+.res-detail{font-size:11px;color:var(--muted)}
+.res-actions{display:flex;gap:6px;margin-top:9px}
+.btn-confirm{background:rgba(61,186,126,.12);border:1px solid rgba(61,186,126,.25);color:var(--green);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'Jost',sans-serif;font-weight:500}
+.btn-cancel-res{background:rgba(224,85,85,.08);border:1px solid rgba(224,85,85,.2);color:var(--red);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'Jost',sans-serif}
+.badge{display:inline-flex;align-items:center;border-radius:99px;font-size:9px;padding:2px 8px;font-weight:500;margin-left:5px;vertical-align:middle}
+.badge-pending{background:rgba(74,127,212,.1);border:1px solid rgba(74,127,212,.2);color:var(--blue)}
+.badge-confirmed{background:rgba(61,186,126,.1);border:1px solid rgba(61,186,126,.2);color:var(--green)}
+.badge-cancelled{background:rgba(224,85,85,.08);border:1px solid rgba(224,85,85,.18);color:var(--red)}
+
+/* Search reservas */
+.search-wrap{padding:12px 14px;display:flex;gap:8px}
+.search-input{flex:1;background:var(--card);border:1px solid var(--border2);border-radius:var(--r8);padding:10px 13px;color:var(--cream);font-family:'Jost',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:var(--r8);padding:10px 14px;font-weight:600;font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;white-space:nowrap;letter-spacing:.04em}
+.empty-search{text-align:center;padding:32px 20px;color:var(--muted)}
+.empty-icon{font-size:30px;margin-bottom:10px}
+.empty-text{font-size:12px;line-height:1.6}
+
+/* Client groups */
+.cgroup{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:0 14px 10px;overflow:hidden}
+.chead{padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
+.chead:hover{background:#161616}
+.avatar{width:34px;height:34px;border-radius:50%;background:rgba(201,168,76,.12);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;flex-shrink:0}
+.cname{font-family:'Cormorant Garamond',serif;font-size:14px}
+.cmeta{font-size:11px;color:var(--muted);margin-top:1px}
+.ctotal{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);margin-left:auto}
+.vrow{padding:10px 13px;display:flex;align-items:flex-start;gap:9px;border-bottom:1px solid #181818}
+.vrow:last-child{border-bottom:none}
+.vdate{font-size:10px;color:var(--blue);font-weight:600;min-width:50px;padding-top:2px;letter-spacing:.04em}
+.vinfo{flex:1;min-width:0}
+.vservice{font-size:12px;color:var(--cream)}
+.vobs{font-size:11px;color:var(--muted);font-style:italic;margin-top:2px}
+.vprice{font-size:12px;color:var(--gold);font-weight:500;padding-top:2px}
+.ibt{width:26px;height:26px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all .15s}
+.ibt:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Calendar */
+.cal-wrap{padding:14px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month{font-family:'Cormorant Garamond',serif;font-size:17px}
+.cal-arrow{background:none;border:1px solid var(--border2);color:var(--muted);width:30px;height:30px;border-radius:var(--r8);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dn{text-align:center;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:5px 0}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;font-size:12px;color:var(--muted);cursor:pointer;position:relative;border:1px solid transparent;transition:all .15s}
+.cal-day:hover:not(.closed):not(.empty){background:#161616}
+.cal-day.has-data{color:var(--cream)}
+.cal-day.today{border-color:var(--gold);color:var(--gold)}
+.cal-day.selected{background:var(--gold);color:#000;font-weight:700}
+.cal-day.closed,.cal-day.empty{opacity:.2;pointer-events:none}
+.dot{width:4px;height:4px;border-radius:50%;background:var(--gold);position:absolute;bottom:3px}
+.selected .dot{background:#000}
+.ddp{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-top:12px;overflow:hidden}
+.ddp-header{padding:13px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end}
+.ddp-date{font-family:'Cormorant Garamond',serif;font-size:15px}
+.ddp-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.ddp-total{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold)}
+
+/* Resumen */
+.rc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:0 14px 10px;overflow:hidden;cursor:pointer}
+.rc-head{padding:13px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.rc-date{font-family:'Cormorant Garamond',serif;font-size:14px}
+.rc-stats{display:flex;border-bottom:1px solid var(--border)}
+.rc-stat{flex:1;padding:11px 8px;text-align:center;border-right:1px solid var(--border)}
+.rc-stat:last-child{border-right:none}
+.rc-stat-val{font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1;margin-bottom:2px}
+.rc-stat-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rc-body{max-height:0;overflow:hidden;transition:max-height .3s}
+.rc-body.open{max-height:600px}
+.pill-hoy{background:rgba(61,186,126,.1);border:1px solid rgba(61,186,126,.22);color:var(--green);font-size:10px;padding:2px 9px;border-radius:99px}
+
+/* Ficha */
+.ficha-wrap{padding:14px}
+.back-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;padding:0;margin-bottom:12px;display:inline-flex;align-items:center;gap:5px}
+.ficha-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.ficha-bar{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.ficha-hd{padding:16px 14px;display:flex;gap:12px;align-items:center}
+.ficha-av{width:50px;height:50px;border-radius:50%;background:rgba(201,168,76,.12);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;flex-shrink:0}
+.ficha-name{font-family:'Cormorant Garamond',serif;font-size:19px;margin-bottom:2px}
+.ficha-phone{font-size:11px;color:var(--muted)}
+.ficha-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--gold);font-size:10px;padding:2px 9px;border-radius:99px;margin-top:4px}
+.ficha-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.fs{padding:12px 6px;text-align:center;border-right:1px solid var(--border)}
+.fs:last-child{border-right:none}
+.fs-val{font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1;margin-bottom:3px}
+.fs-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* Sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{background:#0d0d0d;border:1px solid var(--border);border-bottom:none;border-radius:16px 16px 0 0;width:100%;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.overlay.open .sheet{transform:translateY(0)}
+.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:99px;margin:12px auto 4px}
+.sheet-title{font-family:'Cormorant Garamond',serif;font-size:17px;padding:6px 18px 14px;border-bottom:1px solid var(--border)}
+.sheet-body{padding:18px}
+.fs-field{margin-bottom:13px}
+.fs-field label{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:500}
+.fs-field input,.fs-field select,.fs-field textarea{width:100%;background:#0a0a0a;border:1px solid var(--border2);border-radius:var(--r8);padding:10px 12px;color:var(--cream);font-family:'Jost',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.fs-field input:focus,.fs-field select:focus,.fs-field textarea:focus{border-color:var(--gold)}
+.fs-field textarea{resize:vertical;min-height:68px}
+.row2s{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-full{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:var(--r8);padding:13px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Jost',sans-serif;letter-spacing:.04em;margin-top:4px}
+.btn-ghost-s{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:var(--r8);padding:12px;font-size:13px;cursor:pointer;font-family:'Jost',sans-serif;margin-top:8px}
+
+/* Toast */
+.toast{position:fixed;top:54px;left:50%;transform:translateX(-50%) translateY(-80px);background:#1a1a1a;border:1px solid var(--border2);color:var(--cream);padding:10px 20px;border-radius:99px;font-size:13px;z-index:999;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Hide mode bar in standalone admin */
+.mode-bar{ display:none }
+#mode-admin{ display:block !important }
+.adm-wrap{ padding-bottom:68px }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background:#080808">
+
+<div id="mode-admin" class="screen">
+<div class="adm-wrap">
+
+  <!-- ── HOY ── -->
+  <div id="adm-hoy" class="adm-screen active">
+    <div class="topbar">
+      <a href="/" style="font-size:11px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px">← Inicio</a>
+      <div><div class="topbar-title">Hoy</div><div class="topbar-sub" id="adm-fecha"></div></div>
+      <button class="btn-gold" onclick="openSheet('sh-visit')">+ Visita</button>
+    </div>
+
+    <!-- Caja diaria -->
+    <div style="padding:14px 14px 0">
+      <div class="caja-card">
+        <div class="caja-bar"></div>
+        <div class="caja-header">
+          <div>
+            <div class="caja-title">Caja del día</div>
+            <div class="caja-date" id="caja-fecha"></div>
+          </div>
+          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:rgba(61,186,126,.1);border:1px solid rgba(61,186,126,.2);padding:3px 10px;border-radius:99px">● EN CURSO</div>
+        </div>
+        <div class="caja-total" id="caja-total">$0</div>
+        <div class="caja-total-lbl">TOTAL RECAUDADO</div>
+        <div class="caja-row"><span class="caja-key">Servicios atendidos</span><span class="caja-val" id="caja-cnt">0</span></div>
+        <div class="caja-row"><span class="caja-key">Promedio por servicio</span><span class="caja-val" id="caja-avg">$0</span></div>
+        <div class="caja-row" style="border-top:1px solid var(--border)"><span class="caja-key" style="color:var(--muted);font-size:11px">Se archiva automáticamente a las 00:00</span></div>
+      </div>
+    </div>
+
+    <!-- Reservas de hoy -->
+    <div class="sec-lbl">Reservas de hoy</div>
+    <div id="hoy-reservas"></div>
+
+    <!-- Visitas registradas hoy -->
+    <div class="sec-lbl" style="margin-top:4px">Atenciones del día <span style="color:#444;font-size:9px;letter-spacing:.06em">(ingresadas por Wilfredo)</span></div>
+    <div id="hoy-visitas"></div>
+  </div>
+
+  <!-- ── BUSCAR RESERVAS ── -->
+  <div id="adm-buscar" class="adm-screen" style="padding-top:8px">
+    <div class="topbar"><div class="topbar-title">Buscar reserva</div></div>
+    <div class="search-wrap" style="padding-top:20px">
+      <input class="search-input" id="buscar-input" placeholder="🔍  Nombre, teléfono o servicio…" oninput="buscarReservas()">
+    </div>
+    <div id="buscar-results">
+      <div class="empty-search">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-text">Escribe el nombre de la clienta<br>o el servicio para buscar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLIENTAS ── -->
+  <div id="adm-clientes" class="adm-screen" style="padding-top:8px">
+    <div class="topbar"><div class="topbar-title">Clientas</div></div>
+    <div class="search-wrap">
+      <input class="search-input" id="cli-search" placeholder="🔍  Buscar clienta…" oninput="renderClientes()">
+    </div>
+    <div class="sec-lbl" id="cli-lbl">Historial por clienta</div>
+    <div id="cli-list"></div>
+  </div>
+
+  <!-- ── CALENDARIO ── -->
+  <div id="adm-cal" class="adm-screen">
+    <div class="topbar"><div class="topbar-title">Calendario</div></div>
+    <div class="cal-wrap">
+      <div class="cal-nav">
+        <button class="cal-arrow" onclick="admCM(-1)">‹</button>
+        <div class="cal-month" id="adm-cal-lbl"></div>
+        <button class="cal-arrow" onclick="admCM(1)">›</button>
+      </div>
+      <div class="cal-grid" id="adm-cgrid"></div>
+      <div id="adm-ddetail"></div>
+    </div>
+  </div>
+
+  <!-- ── RESUMEN ── -->
+  <div id="adm-resumen" class="adm-screen">
+    <div class="topbar">
+      <div><div class="topbar-title">Resumen diario</div><div class="topbar-sub">Historial archivado</div></div>
+    </div>
+    <div style="padding:14px" id="resumen-list"></div>
+  </div>
+
+  <!-- ── FICHA ── -->
+  <div id="adm-ficha" class="adm-screen">
+    <div class="topbar">
+      <button class="back-btn" onclick="closeFicha()" style="margin:0">← Volver</button>
+      <div class="topbar-title" style="font-size:15px">Ficha clienta</div>
+      <div style="width:60px"></div>
+    </div>
+    <div class="ficha-wrap" id="ficha-content"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="bnav-btn active" onclick="admS('hoy')" id="nav-hoy"><div class="bnav-icon">📋</div>Hoy</button>
+    <button class="bnav-btn" onclick="admS('buscar')" id="nav-buscar"><div class="bnav-icon">🔍</div>Buscar</button>
+    <button class="bnav-btn" onclick="admS('clientes')" id="nav-clientes"><div class="bnav-icon">👥</div>Clientas</button>
+    <button class="bnav-btn" onclick="admS('cal')" id="nav-cal"><div class="bnav-icon">📅</div>Calendario</button>
+    <button class="bnav-btn" onclick="admS('resumen')" id="nav-resumen"><div class="bnav-icon">📊</div>Resumen</button>
+  </div>
+</div>
+</div><!-- /admin -->
+
+<!-- SHEET: Nueva Visita -->
+<div class="overlay" id="sh-visit" onclick="bgClose(event,'sh-visit')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Registrar visita</div>
+    <div class="sheet-body">
+      <div class="fs-field"><label>Nombre clienta</label><input id="sv-name" type="text" placeholder="Nombre completo" list="sv-names"><datalist id="sv-names"></datalist></div>
+      <div class="fs-field"><label>Teléfono</label><input id="sv-phone" type="tel" placeholder="+569 9xxx xxxx" value="+569 "></div>
+      <div class="fs-field"><label>Servicio</label>
+        <select id="sv-svc"><option value="">Selecciona…</option>
+          <option>Coloración + Corte</option><option>Balayage</option><option>Babylight</option>
+          <option>Mechas</option><option>Visos</option><option>Botox capilar</option>
+          <option>Alisado capilar</option><option>Coloración global</option>
+          <option>Corte Dama</option><option>Corte Varón</option><option>Tratamiento capilar</option>
+        </select>
+      </div>
+      <div class="row2s">
+        <div class="fs-field"><label>Fecha</label><input id="sv-date" type="date"></div>
+        <div class="fs-field"><label>Precio ($)</label><input id="sv-price" type="number" placeholder="25000"></div>
+      </div>
+      <div class="fs-field"><label>Observaciones</label><textarea id="sv-obs" placeholder="Color usado, técnica, notas importantes…"></textarea></div>
+      <button class="btn-full" onclick="saveVisit()">Guardar visita</button>
+      <button class="btn-ghost-s" onclick="closeSheet('sh-visit')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DS=['dom','lun','mar','mié','jue','vie','sáb'];
+
+const SVCS=[
+  {name:'Coloración + Corte',price:28000},{name:'Balayage',price:35000},
+  {name:'Babylight',price:38000},{name:'Mechas',price:30000},
+  {name:'Visos',price:25000},{name:'Botox capilar',price:45000},
+  {name:'Alisado capilar',price:55000},{name:'Coloración global',price:22000},
+  {name:'Corte Dama',price:12000},{name:'Corte Varón',price:8000},
+  {name:'Tratamiento capilar',price:18000}
+];
+
+let currentFicha=null;
+let admCal={m:5,y:2025},admSelDate=null;
+let bkCal={m:5,y:2025},bk={svc:null,date:null,time:null};
+
+
+// ── SUPABASE ──
+const _surl = 'https://mdxgwjjxufkkgcjrkfeu.supabase.co';
+const _skey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keGd3amp4dWZra2djanJrZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MjQ3MTksImV4cCI6MjA5NDMwMDcxOX0.-Asw0hK89pMjk9-EYLw_iNJA8yNKXOumlvSG5kHr6pY';
+
+const sb = supabase.createClient(_surl, _skey);
+
+// ── DB HELPERS ──
+async function dbGetReservasHoy(fecha) {
+  const { data } = await sb.from('wf_reservas').select('*').eq('fecha', fecha).neq('estado','cancelada').order('hora');
+  return data || [];
+}
+async function dbGetVisitasHoy(fecha) {
+  const { data } = await sb.from('wf_visitas').select('*').eq('fecha', fecha).order('created_at', {ascending:false});
+  return data || [];
+}
+async function dbInsertVisita(v) {
+  const { data, error } = await sb.from('wf_visitas').insert([v]).select().single();
+  return { data, error };
+}
+async function dbDeleteVisita(id) {
+  return await sb.from('wf_visitas').delete().eq('id', id);
+}
+async function dbSearchVisitas(q) {
+  const { data } = await sb.from('wf_visitas').select('*').or(`nombre.ilike.%${q}%,servicio.ilike.%${q}%,telefono.ilike.%${q}%`).order('fecha',{ascending:false});
+  return data || [];
+}
+async function dbSearchReservas(q) {
+  const { data } = await sb.from('wf_reservas').select('*').or(`nombre.ilike.%${q}%,servicio.ilike.%${q}%,telefono.ilike.%${q}%`).order('fecha',{ascending:false});
+  return data || [];
+}
+async function dbGetVisitasCliente(nombre) {
+  const { data } = await sb.from('wf_visitas').select('*').ilike('nombre', nombre).order('fecha',{ascending:false});
+  return data || [];
+}
+async function dbUpdateReserva(id, updates) {
+  return await sb.from('wf_reservas').update(updates).eq('id', id);
+}
+async function dbInsertReserva(r) {
+  const { data, error } = await sb.from('wf_reservas').insert([r]).select().single();
+  return { data, error };
+}
+async function dbGetAllVisitas() {
+  const { data } = await sb.from('wf_visitas').select('*').order('fecha',{ascending:false});
+  return data || [];
+}
+
+// ── UTILS ──
+function today(){return'2025-06-03';} // demo: fija como hoy
+function fmt(d){const[y,m,day]=d.split('-');return`${parseInt(day)} ${MS[parseInt(m)-1]}`;}
+function fmtL(d){const dt=new Date(d+'T12:00:00');return`${DS[dt.getDay()].charAt(0).toUpperCase()+DS[dt.getDay()].slice(1)} ${dt.getDate()} de ${MONTHS[dt.getMonth()]}`;}
+function ini(n){return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function $p(n){return'$'+Number(n).toLocaleString('es-CL');}
+function isClosed(d){const dw=new Date(d+'T12:00:00').getDay();return dw===0||dw===1;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ── MODE ──
+function setMode(m){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',['public','admin'][i]===m));
+  if(m==='admin'){renderHoy();renderAdmCal();}
+}
+
+// ── ADMIN NAV ──
+function admS(name){
+  document.querySelectorAll('.adm-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('adm-'+name).classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+name);if(nb)nb.classList.add('active');
+  if(name==='hoy')renderHoy();
+  if(name==='clientes')renderClientes();
+  if(name==='cal')renderAdmCal();
+  if(name==='resumen')renderResumen();
+  if(name==='buscar'){document.getElementById('buscar-input').value='';buscarReservas();}
+}
+
+function openFicha(n){
+  currentFicha=n;renderFicha();
+  document.querySelectorAll('.adm-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('adm-ficha').classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+}
+function closeFicha(){admS('clientes');}
+
+// ── HOY ──
+async function renderHoy(){
+  const td=today();
+  const dt=new Date(td+'T12:00:00');
+  const dayLbl=`${DS[dt.getDay()].charAt(0).toUpperCase()+DS[dt.getDay()].slice(1)}, ${dt.getDate()} de ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+  document.getElementById('adm-fecha').textContent=dayLbl;
+  document.getElementById('caja-fecha').textContent=dayLbl;
+
+  // Cargar de Supabase
+  const [todayV, todayRes] = await Promise.all([
+    dbGetVisitasHoy(td),
+    dbGetReservasHoy(td)
+  ]);
+
+  // Caja diaria
+  const cajaTotal=todayV.reduce((s,v)=>s+Number(v.precio||0),0);
+  const cajaAvg=todayV.length>0?Math.round(cajaTotal/todayV.length):0;
+  document.getElementById('caja-total').textContent=$p(cajaTotal);
+  document.getElementById('caja-cnt').textContent=todayV.length;
+  document.getElementById('caja-avg').textContent=$p(cajaAvg);
+
+  // Reservas de hoy
+  const hrEl=document.getElementById('hoy-reservas');
+  if(todayRes.length===0){
+    hrEl.innerHTML=`<div style="padding:0 14px 14px;font-size:12px;color:var(--muted)">Sin reservas para hoy.</div>`;
+  } else {
+    hrEl.innerHTML=todayRes.map(r=>`
+      <div class="res-item">
+        <div class="res-date-box"><div class="res-day-num">${r.hora.split(':')[0]}</div><div class="res-month">${r.hora.split(':')[1]}h</div></div>
+        <div class="res-body">
+          <div class="res-name">${r.nombre}<span class="badge badge-${r.estado}">${r.estado==='pendiente'?'Pendiente':'Confirmada'}</span></div>
+          <div class="res-detail">${r.servicio} · ${r.telefono||''}</div>
+          <div class="res-actions">
+            ${r.estado==='pendiente'?`<button class="btn-confirm" onclick="confirmRes('${r.id}')">✓ Confirmar</button>`:''}
+            <button class="btn-cancel-res" onclick="cancelRes('${r.id}')">Cancelar</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Visitas registradas hoy
+  const hvEl=document.getElementById('hoy-visitas');
+  if(todayV.length===0){
+    hvEl.innerHTML=`<div style="padding:0 14px 14px;font-size:12px;color:var(--muted)">Sin visitas registradas. Usa el botón <strong style="color:var(--gold)">+ Visita</strong>.</div>`;
+  } else {
+    hvEl.innerHTML=`<div class="cgroup">${todayV.map(v=>`
+      <div class="vrow">
+        <div class="avatar" style="width:30px;height:30px;font-size:10px">${ini(v.nombre)}</div>
+        <div class="vinfo" style="flex:1"><div class="vservice">${v.nombre}</div><div class="vobs">${v.servicio}${v.observaciones?' · '+v.observaciones:''}</div></div>
+        <span class="vprice">${$p(Number(v.precio||0))}</span>
+        <div style="display:flex;gap:4px">
+          <button class="ibt" onclick="delVisit('${v.id}')">🗑</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+}
+
+async function confirmRes(id){
+  await dbUpdateReserva(id,{estado:'confirmada'});
+  toast('✅ Reserva confirmada');renderHoy();
+}
+async function cancelRes(id){
+  if(!confirm('¿Cancelar?'))return;
+  await dbUpdateReserva(id,{estado:'cancelada'});
+  toast('🗑 Cancelada');renderHoy();
+}
+
+// ── BUSCAR RESERVAS (vacío hasta que se escribe) ──
+async function buscarReservas(){
+  const q=(document.getElementById('buscar-input').value||'').trim();
+  const c=document.getElementById('buscar-results');
+  if(!q){
+    c.innerHTML=`<div class="empty-search"><div class="empty-icon">🔍</div><div class="empty-text">Escribe el nombre de la clienta<br>o el servicio para buscar</div></div>`;
+    return;
+  }
+  c.innerHTML=`<div class="empty-search"><div class="empty-icon">⏳</div><div class="empty-text">Buscando…</div></div>`;
+  const [reservasR, visitasR] = await Promise.all([
+    dbSearchReservas(q),
+    dbSearchVisitas(q)
+  ]);
+  const found=[
+    ...reservasR.map(r=>({...r,tipo:'reserva'})),
+    ...visitasR.map(v=>({...v,tipo:'visita'}))
+  ];
+  if(found.length===0){
+    c.innerHTML=`<div class="empty-search"><div class="empty-icon">😶</div><div class="empty-text">Sin resultados para "<strong>${q}</strong>"</div></div>`;
+    return;
+  }
+  c.innerHTML=`<div class="sec-lbl">${found.length} resultado${found.length!==1?'s':''}</div>`+found.map(r=>{
+    const isVisit=r.tipo==='visita';
+    return`<div class="res-item">
+      <div class="res-date-box">
+        <div class="res-day-num" style="font-size:16px">${isVisit?'🗂':'📅'}</div>
+        <div class="res-month">${fmt(isVisit?r.fecha:r.fecha)}</div>
+      </div>
+      <div class="res-body">
+        <div class="res-name">${r.nombre}<span class="badge ${isVisit?'badge-confirmed':'badge-pendiente'}">${isVisit?'Visita':r.estado==='pendiente'?'Reserva pend.':'Reserva conf.'}</span></div>
+        <div class="res-detail">${r.servicio} · ${r.telefono||''}</div>
+        ${isVisit&&r.observaciones?`<div class="res-detail" style="margin-top:3px;font-style:italic">${r.observaciones}</div>`:''}
+        ${isVisit?`<div style="font-size:12px;color:var(--gold);margin-top:4px;font-weight:500">${$p(Number(r.precio||0))}</div>`:`<div style="font-size:12px;color:var(--blue);margin-top:4px">${r.hora}</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CLIENTAS ──
+function renderClientes(){
+  const q=(document.getElementById('cli-search').value||'').toLowerCase();
+  const c=document.getElementById('cli-list');
+  document.getElementById('cli-lbl').textContent=q?`Resultados: "${q}"` : '';
+  if(!q){
+    c.innerHTML=`<div class="empty-search"><div class="empty-icon">👤</div><div class="empty-text">Escribe el nombre de la clienta<br>para ver su historial</div></div>`;
+    return;
+  }
+  // filtered already loaded from Supabase above via dbSearchVisitas
+  const groups={};
+  filtered.forEach(v=>{if(!groups[v.nombre])groups[v.nombre]={visits:[],phone:v.telefono};groups[v.nombre].visits.push(v);});
+  if(!Object.keys(groups).length){c.innerHTML=`<div class="empty-search"><div class="empty-icon">🔍</div><div class="empty-text">Sin resultados para "${q}"</div></div>`;return;}
+  c.innerHTML=Object.entries(groups).map(([name,data])=>{
+    const s=[...data.visits].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const total=s.reduce((x,v)=>x+v.price,0);
+    const rows=s.map(v=>`
+      <div class="vrow">
+        <span class="vdate">${fmt(v.fecha)}</span>
+        <div class="vinfo"><div class="vservice">${v.servicio}</div>${v.observaciones?`<div class="vobs">${v.observaciones}</div>`:''}</div>
+        <span class="vprice">${$p(Number(v.precio||0))}</span>
+        <div style="display:flex;gap:4px"><button class="ibt" onclick="delVisit('${v.id}')">🗑</button></div>
+      </div>`).join('');
+    return`<div class="cgroup">
+      <div class="chead" onclick="openFicha('${name.replace(/'/g,"\\'")}')">
+        <div class="avatar">${ini(name)}</div>
+        <div style="flex:1;min-width:0"><div class="cname">${name}</div><div class="cmeta">${data.phone} · ${s.length} visita${s.length!==1?'s':''}</div></div>
+        <div class="ctotal">${$p(total)}</div>
+        <span style="color:var(--muted);margin-left:6px;font-size:12px">›</span>
+      </div>
+      <div>${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── CALENDARIO ──
+function renderAdmCal(){
+  const {m,y}=admCal;
+  document.getElementById('adm-cal-lbl').textContent=`${MONTHS[m]} ${y}`;
+  const dn=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  let html=dn.map(d=>`<div class="cal-dn">${d}</div>`).join('');
+  const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),td=today();
+  for(let i=0;i<first;i++)html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const closed=isClosed(ds);
+    const dv=[],dr=[]; // Calendar dots - populated on day select
+    const hasData=dv.length>0||dr.length>0;
+    const isTd=ds===td,isSel=ds===admSelDate;
+    let cls='cal-day';
+    if(closed)cls+=' closed';
+    else if(isSel)cls+=' selected';
+    else if(isTd)cls+=' today';
+    else if(hasData)cls+=' has-data';
+    html+=`<div class="${cls}" onclick="admSD('${ds}')">${d}${hasData&&!isSel?`<div class="dot"></div>`:''}</div>`;
+  }
+  document.getElementById('adm-cgrid').innerHTML=html;
+  if(admSelDate)renderDDP(admSelDate);
+  else document.getElementById('adm-ddetail').innerHTML='';
+}
+function admCM(d){admCal.m+=d;if(admCal.m>11){admCal.m=0;admCal.y++;}if(admCal.m<0){admCal.m=11;admCal.y--;}renderAdmCal();}
+function admSD(ds){admSelDate=ds;renderAdmCal();}
+async function renderDDP(ds){
+  const [dv,dr]=await Promise.all([
+    dbGetVisitasHoy(ds),
+    dbGetReservasHoy(ds)
+  ]);
+  const total=dv.reduce((s,v)=>s+v.price,0);
+  const c=document.getElementById('adm-ddetail');
+  if(!dv.length&&!dr.length){
+    c.innerHTML=`<div class="ddp"><div class="ddp-header"><div><div class="ddp-date">${fmtL(ds)}</div></div><span style="font-size:12px;color:var(--muted)">Sin actividad</span></div><div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Sin registros este día.</div></div>`;
+    return;
+  }
+  const rRows=dr.length?`<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 13px 4px">Reservas</div>`+dr.map(r=>`
+    <div class="vrow"><div class="avatar" style="width:28px;height:28px;font-size:10px">${ini(r.nombre||r.name||'')}</div>
+    <div class="vinfo" style="flex:1"><div class="vservice" style="font-size:12px">${r.nombre||r.name||''}</div><div class="vobs">${r.hora||r.time||''} · ${r.servicio||r.service||''}</div></div>
+    <span class="badge badge-${r.status}" style="font-size:9px">${r.status==='pending'?'Pend.':'Conf.'}</span></div>`).join(''):'';
+  const vRows=dv.length?`<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 13px 4px">Visitas atendidas</div>`+dv.map(v=>`
+    <div class="vrow"><div class="avatar" style="width:28px;height:28px;font-size:10px">${ini(v.name)}</div>
+    <div class="vinfo" style="flex:1"><div class="vservice" style="font-size:12px">${v.nombre}</div><div class="vobs">${v.servicio}${v.observaciones?' · '+v.observaciones:''}</div></div>
+    <span class="vprice" style="font-size:12px">${$p(v.price)}</span></div>`).join(''):'';
+  c.innerHTML=`<div class="ddp"><div class="ddp-header"><div><div class="ddp-date">${fmtL(ds)}</div><div class="ddp-sub">${dv.length} atendida${dv.length!==1?'s':''} · ${dr.length} reserva${dr.length!==1?'s':''}</div></div><div class="ddp-total">${$p(total)}</div></div>${rRows}${vRows}</div>`;
+}
+
+// ── RESUMEN DIARIO ──
+async function renderResumen(){
+  const allV=await dbGetAllVisitas();
+  const byDate={};
+  allV.forEach(v=>{if(!byDate[v.fecha])byDate[v.fecha]=[];byDate[v.fecha].push(v);});
+  const sorted=Object.entries(byDate).sort((a,b)=>b[0].localeCompare(a[0]));
+  const td=today(),c=document.getElementById('resumen-list');
+  if(!sorted.length){c.innerHTML=`<div class="empty-search"><div class="empty-icon">📊</div><div class="empty-text">Sin resúmenes aún</div></div>`;return;}
+  c.innerHTML=sorted.map(([date,dvs],i)=>{
+    const total=dvs.reduce((s,v)=>s+Number(v.precio||0),0);
+    const avg=Math.round(total/dvs.length);
+    const isToday=date===td,rid=`rc_${i}`;
+    const rows=dvs.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(v=>`
+      <div class="vrow" style="padding:8px 13px">
+        <div class="avatar" style="width:28px;height:28px;font-size:10px">${ini(v.name)}</div>
+        <div class="vinfo" style="flex:1"><div class="vservice" style="font-size:12px">${v.nombre}</div><div class="vobs">${v.servicio}${v.observaciones?' · '+v.observaciones:''}</div></div>
+        <span style="font-size:12px;color:var(--gold)">${$p(v.price)}</span>
+      </div>`).join('');
+    return`<div class="rc" onclick="toggleRC('${rid}')">
+      <div class="rc-head">
+        <div class="rc-date">${fmtL(date)}</div>
+        ${isToday?`<span class="pill-hoy">● Hoy</span>`:''}
+      </div>
+      <div class="rc-stats">
+        <div class="rc-stat"><div class="rc-stat-val">${dvs.length}</div><div class="rc-stat-lbl">Visitas</div></div>
+        <div class="rc-stat"><div class="rc-stat-val" style="font-size:13px">${$p(total)}</div><div class="rc-stat-lbl">Total</div></div>
+        <div class="rc-stat"><div class="rc-stat-val" style="font-size:13px">${$p(avg)}</div><div class="rc-stat-lbl">Promedio</div></div>
+      </div>
+      <div class="rc-body" id="${rid}">${rows}</div>
+    </div>`;
+  }).join('');
+}
+function toggleRC(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+
+// ── FICHA ──
+async function renderFicha(){
+  const name=currentFicha;
+  const cvs=await dbGetVisitasCliente(name);
+  const total=cvs.reduce((s,v)=>s+Number(v.precio||0),0);
+  const phone=cvs[0]?.telefono||'';
+  const first=cvs.length?fmt(cvs[cvs.length-1].fecha):'—';
+  const last=cvs.length?fmt(cvs[0].fecha):'—';
+  const sc={};cvs.forEach(v=>{sc[v.servicio]=(sc[v.servicio]||0)+1;});
+  const fav=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
+  const rows=cvs.map(v=>`
+    <div class="vrow">
+      <span class="vdate">${fmt(v.fecha)}</span>
+      <div class="vinfo"><div class="vservice">${v.servicio}</div>${v.observaciones?`<div class="vobs">${v.observaciones}</div>`:''}</div>
+      <span class="vprice">${$p(Number(v.precio||0))}</span>
+      <button class="ibt" onclick="delVisit('${v.id}')">🗑</button>
+    </div>`).join('');
+  document.getElementById('ficha-content').innerHTML=`
+    <div class="ficha-card">
+      <div class="ficha-bar"></div>
+      <div class="ficha-hd">
+        <div class="ficha-av">${ini(name)}</div>
+        <div style="flex:1">
+          <div class="ficha-name">${name}</div>
+          <div class="ficha-phone">${phone}</div>
+          ${fav?`<div class="ficha-tag">⭐ ${fav}</div>`:''}
+        </div>
+        <button class="btn-gold" style="font-size:11px;padding:8px 12px;border-radius:8px" onclick="openSheet('sh-visit')">+ Visita</button>
+      </div>
+      <div class="ficha-stats">
+        <div class="fs"><div class="fs-val">${cvs.length}</div><div class="fs-lbl">Visitas</div></div>
+        <div class="fs"><div class="fs-val" style="font-size:13px">${total>=1000?'$'+(total/1000).toFixed(0)+'k':$p(total)}</div><div class="fs-lbl">Gastado</div></div>
+        <div class="fs"><div class="fs-val" style="font-size:12px">${first}</div><div class="fs-lbl">1ª visita</div></div>
+        <div class="fs"><div class="fs-val" style="font-size:12px">${last}</div><div class="fs-lbl">Última</div></div>
+      </div>
+    </div>
+    <div class="sec-lbl">Historial completo</div>
+    <div class="cgroup">${cvs.length?rows:`<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Sin visitas.</div>`}</div>`;
+}
+
+// ── SAVE / DELETE ──
+async function saveVisit(){
+  const nombre=document.getElementById('sv-name').value.trim();
+  const telefono=document.getElementById('sv-phone').value.trim();
+  const servicio=document.getElementById('sv-svc').value;
+  const fechaRaw=document.getElementById('sv-date').value;
+  // Normalize date to YYYY-MM-DD
+  let fecha=fechaRaw;
+  if(fechaRaw&&fechaRaw.includes('-')&&fechaRaw.length===10){
+    const parts=fechaRaw.split('-');
+    if(parts[0].length===2){fecha=`${parts[2]}-${parts[1]}-${parts[0]}`;}
+  }
+  const precio=parseInt(document.getElementById('sv-price').value)||0;
+  const observaciones=document.getElementById('sv-obs').value.trim();
+  if(!nombre||!servicio||!fecha){toast('⚠️ Nombre, servicio y fecha son obligatorios');return;}
+  const {error}=await dbInsertVisita({nombre,telefono,servicio,fecha,precio,observaciones});
+  if(error){toast('❌ '+( error.message||'Error al guardar'));console.error(error);return;}
+  closeSheet('sh-visit');
+  ['sv-name','sv-phone','sv-price','sv-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('sv-svc').value='';
+  toast('✅ Visita registrada');
+  renderHoy();renderClientes();renderResumen();
+  if(currentFicha)renderFicha();
+}
+async function delVisit(id){
+  if(!confirm('¿Eliminar esta visita?'))return;
+  await dbDeleteVisita(id);
+  toast('🗑 Eliminada');
+  renderHoy();renderClientes();renderResumen();
+  if(currentFicha)renderFicha();
+}
+
+// ── SHEETS ──
+async function openSheet(id){
+  // Fetch real names from Supabase for autocomplete
+  try {
+    const {data} = await sb.from('wf_visitas').select('nombre').order('nombre');
+    const names=[...new Set((data||[]).map(v=>v.nombre))];
+    const dl=document.getElementById('sv-names');
+    if(dl)dl.innerHTML=names.map(n=>`<option value="${n}">`).join('');
+  } catch(e){}
+  document.getElementById('sv-date').value=today();
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+function bgClose(e,id){if(e.target===document.getElementById(id))closeSheet(id);}
+
+// ── BOOKING FLOW ──
+function startBooking(){
+  document.getElementById('pub-home').style.display='none';
+  document.getElementById('booking-flow').style.display='block';
+  renderSvcGrid();goStep(1);window.scrollTo(0,0);
+}
+function closeBooking(){
+  document.getElementById('booking-flow').style.display='none';
+  document.getElementById('pub-home').style.display='block';
+  bk={svc:null,date:null,time:null};window.scrollTo(0,0);
+}
+function goStep(n){
+  for(let i=1;i<=5;i++){const el=document.getElementById(`bk-${i}`);if(el)el.style.display=i===n?'block':'none';}
+  if(n===2)renderBkCal();if(n===3)renderBkTimes();if(n===4)renderBkSummary();
+  window.scrollTo(0,0);
+}
+function renderSvcGrid(){
+  document.getElementById('svc-grid').innerHTML=SVCS.map(s=>`
+    <div class="svc-btn ${bk.svc===s.name?'selected':''}" onclick="selSvc('${s.name}')">
+      <span class="svc-name">${s.name}</span>
+    </div>`).join('');
+}
+function selSvc(n){bk.svc=n;renderSvcGrid();document.getElementById('btn-n1').disabled=false;}
+function renderBkCal(){
+  const{m,y}=bkCal;
+  document.getElementById('bk-ml').textContent=`${MONTHS[m]} ${y}`;
+  const dn=['D','L','M','X','J','V','S'];
+  let html=dn.map(d=>`<div class="date-dn">${d}</div>`).join('');
+  const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),td=today();
+  for(let i=0;i<first;i++)html+=`<div class="date-btn empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const closed=isClosed(ds),past=ds<td,sel=ds===bk.date;
+    let cls='date-btn';
+    if(closed)cls+=' closed';else if(past)cls+=' past';else if(sel)cls+=' selected';else cls+=' available';
+    html+=`<div class="${cls}" onclick="selDate('${ds}')">${d}</div>`;
+  }
+  document.getElementById('bk-dgrid').innerHTML=html;
+}
+function bkM(d){bkCal.m+=d;if(bkCal.m>11){bkCal.m=0;bkCal.y++;}if(bkCal.m<0){bkCal.m=11;bkCal.y--;}renderBkCal();}
+function selDate(ds){bk.date=ds;renderBkCal();document.getElementById('btn-n2').disabled=false;}
+function renderBkTimes(){
+  const dow=bk.date?new Date(bk.date+'T12:00:00').getDay():2;
+  const isSat=dow===6;
+  const slots=[];let h=8,m=30;const endH=isSat?15:18;
+  while(h<endH||(h===endH&&m===0)){slots.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);m+=30;if(m>=60){m=0;h++;}}
+  const taken=reservas.filter(r=>r.date===bk.date&&r.status!=='cancelled').map(r=>r.time);
+  document.getElementById('bk-tgrid').innerHTML=slots.map(t=>`
+    <div class="time-btn ${t===bk.time?'selected':''} ${taken.includes(t)?'taken':''}" onclick="selTime('${t}')">${t}</div>`).join('');
+}
+function selTime(t){bk.time=t;renderBkTimes();document.getElementById('btn-n3').disabled=false;}
+function renderBkSummary(){
+  if(!bk.svc||!bk.date||!bk.time)return;
+  const svc=SVCS.find(s=>s.name===bk.svc);
+  document.getElementById('bk-summary').innerHTML=`
+    <div class="confirm-row"><span class="confirm-lbl">Servicio</span><span class="confirm-val">${bk.svc}</span></div>
+    <div class="confirm-row"><span class="confirm-lbl">Fecha</span><span class="confirm-val">${fmtL(bk.date)}</span></div>
+    <div class="confirm-row"><span class="confirm-lbl">Hora</span><span class="confirm-val">${bk.time}</span></div>`;
+}
+function confirmBooking(){
+  const name=document.getElementById('bk-name').value.trim();
+  const phone=document.getElementById('bk-phone').value.trim();
+  if(!name||!phone){toast('⚠️ Ingresa tu nombre y teléfono');return;}
+  reservas.push({id:nextRid++,name,phone,service:bk.svc,date:bk.date,time:bk.time,status:'pending'});
+  document.getElementById('bk-success-text').innerHTML=`Tu hora para <strong>${bk.svc}</strong><br>${fmtL(bk.date)} a las ${bk.time}<br><br>Wilfredo te confirmará por WhatsApp 📱`;
+  goStep(5);renderHoy();
+}
+
+// ── INIT ──
+renderHoy();renderAdmCal();
+
+</script>
+</body>
+</html>

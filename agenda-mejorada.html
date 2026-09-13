@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Wilfredo · Agenda mejorada</title>
+<style>
+body{margin:0;background:#080808;color:#f0ece0;font-family:system-ui,sans-serif}
+.loading{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+.err{color:#e05555;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">Cargando agenda mejorada…</div>
+<script>
+fetch('./index.html',{cache:'no-store'})
+  .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+  .then(function(html){
+    var patch='<script src="./agenda-fixes-v1.js"><\\/script>';
+    if(html.indexOf('</body>')<0)throw new Error('HTML base invalido');
+    html=html.replace('</body>',patch+'\n</body>');
+    document.open();
+    document.write(html);
+    document.close();
+  })
+  .catch(function(e){
+    console.error(e);
+    document.getElementById('loading').innerHTML='<div class="err">No fue posible cargar la agenda mejorada.<br>La agenda original no fue modificada.</div>';
+  });
+</script>
+</body>
+</html>

@@ -539,9 +539,12 @@ function abrirAtender(btn){
 
 async function cancelarRes(id){
   if(!confirm('Cancelar esta reserva?'))return;
-  await sb.from('wf_reservas').update({estado:'cancelada'}).eq('id',id);
+  var r=await sb.from('wf_reservas').update({estado:'cancelada'}).eq('id',id);
+  if(r.error){toast('No se pudo cancelar: '+r.error.message);return;}
   toast('Reserva cancelada');
   loadHoy();
+  if(_ficha)loadFicha(_ficha);
+  if(_calSel)loadDayDetail(_calSel);
 }
 
 async function devolverStockVisita(id){
@@ -802,6 +805,7 @@ async function loadFicha(nombre){
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'
         +'<span class="badge '+(rv.estado==='pendiente'?'badge-pend':'badge-conf')+'">'+(rv.estado==='pendiente'?'Pendiente':'Confirmada')+'</span>'
         +'<button class="btn-del" onclick="editarReserva(\''+rv.id+'\',\''+escAttr(rv.servicio)+'\',\''+rv.fecha+'\',\''+(rv.hora||'')+'\')" title="Editar">&#9999;&#65039;</button>'
+        +'<button class="btn-cancelar" style="padding:4px 10px;font-size:11px" onclick="cancelarRes(\''+rv.id+'\')">Cancelar</button>'
         +'</div></div>';
     });
     html+='</div>';
@@ -886,7 +890,8 @@ async function loadDayDetail(ds){
         +'<div class="vis-det">'+escAttr(x.hora)+' &middot; '+escAttr(x.servicio)+'</div></div>'
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">'
         +'<span class="badge '+(x.estado==='pendiente'?'badge-pend':'badge-conf')+'">'+(x.estado==='pendiente'?'Pend.':'Conf.')+'</span>'
-        +'<span style="font-size:9px;color:var(--muted)">Ver ficha</span></div></div>';
+        +'<span style="font-size:9px;color:var(--muted)">Ver ficha</span>'
+        +'<button class="btn-cancelar" style="padding:4px 10px;font-size:11px" onclick="event.stopPropagation();cancelarRes(\''+x.id+'\')">Cancelar</button></div></div>';
     });
   }
   if(v.length){

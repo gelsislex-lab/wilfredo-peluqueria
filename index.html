@@ -452,12 +452,13 @@ function rTimes(){
   // ── presentacion: mismos horarios y cupos, agrupados en Mañana / Tarde ──
   function celda(t){
     var n=conteo[t]||0;
+    if(horaPasada(t))return '<div class="time-btn full" role="button" aria-disabled="true" aria-label="'+t+', no disponible">'+t+'<small>No disponible</small></div>';
     if(n>=limite)return '<div class="time-btn full" role="button" aria-disabled="true" aria-label="'+t+', completo">'+t+'<small>Completo</small></div>';
     var on=t===bk.time;
     return '<button type="button" class="time-btn'+(on?' selected':'')+'" data-t="'+t+'" aria-pressed="'+on+'" onclick="sTime(this.dataset.t)">'+t+'</button>';
   }
   var man=slots.filter(function(t){return parseInt(t,10)<13;}), tar=slots.filter(function(t){return parseInt(t,10)>=13;});
-  var libres=slots.filter(function(t){return (conteo[t]||0)<limite;}).length;
+  var libres=slots.filter(function(t){return (conteo[t]||0)<limite&&!horaPasada(t);}).length;
   var h='';
   if(bk._cargando)h+='<div class="loading-note" role="status"><span class="spin" aria-hidden="true"></span>Revisando horas disponibles…</div>';
   if(!libres&&!bk._cargando)h+='<div class="empty-times"><b style="color:var(--cream);display:block;margin-bottom:4px">No quedan horas libres este día</b>Prueba con otro día.<br><button type="button" class="btn-back" style="color:var(--gold);text-decoration:underline" onclick="goStep(2)">Elegir otro día</button></div>';
@@ -466,10 +467,12 @@ function rTimes(){
   document.getElementById('bk-tgrid').innerHTML=h;
 }
 // Si la hora elegida quedo completa al actualizar, se deselecciona (solo interfaz).
+// Si la fecha elegida es hoy, las horas que ya pasaron (hora local) no se pueden reservar.
+function horaPasada(t){if(!bk.date||bk.date!==fechaLocal())return false;var p=String(t).split(':'),n=new Date();return (parseInt(p[0],10)*60+parseInt(p[1]||'0',10))<=(n.getHours()*60+n.getMinutes());}
 function deseleccionarSiCompleto(){
   if(!bk.time)return;
   var limite=(bk.svc==='Corte varon')?1:2;
-  if(((bk._conteo||{})[bk.time]||0)>=limite){bk.time=null;document.getElementById('btn-n3').disabled=true;document.getElementById('hint-3').textContent='Elige una hora para continuar';}
+  if(((bk._conteo||{})[bk.time]||0)>=limite||horaPasada(bk.time)){bk.time=null;document.getElementById('btn-n3').disabled=true;document.getElementById('hint-3').textContent='Elige una hora para continuar';}
 }
 function sTime(t){bk.time=t;rTimes();document.getElementById('btn-n3').disabled=false;document.getElementById('hint-3').innerHTML='Elegiste: <b>'+escAttr(t)+'</b>';}
 function rSum(){if(!bk.svc||!bk.date||!bk.time)return;var dl=fechaLarga(bk.date);document.getElementById('bk-summary').innerHTML='<div class="confirm-row"><span class="confirm-lbl">Servicio</span><span class="confirm-val">'+escAttr(svcLabel(bk.svc))+'</span></div><div class="confirm-row"><span class="confirm-lbl">Fecha</span><span class="confirm-val">'+escAttr(dl)+'</span></div><div class="confirm-row"><span class="confirm-lbl">Hora</span><span class="confirm-val">'+escAttr(bk.time)+'</span></div>';}
@@ -497,6 +500,7 @@ function validarDatos(nombre,tel){
 // Traduce el error del servidor a mensajes visibles (antes eran avisos del navegador).
 function mostrarErrorServidor(em,txt){
   if(/completo/i.test(em)){bkAviso(3,'Ese horario se acaba de completar',txt);return;}
+  if(/ya pas/i.test(em)){bkAviso(3,'Ese horario ya pasó',txt);return;}
   if(/Nombre/.test(em)){campoError('bk-name',txt);document.getElementById('bk-name').focus();return;}
   if(/Telefono no/.test(em)){campoError('bk-phone',txt);document.getElementById('bk-phone').focus();return;}
   bkAviso(4,'No pudimos registrar la reserva',txt);
@@ -531,11 +535,12 @@ async function confirmBooking(){
       if(!ins.ok){
       var em='';try{em=(await ins.json()).message||'';}catch(_){}
       var txt=/completo/i.test(em)?'Lo sentimos, ese horario acaba de completarse. Por favor elige otro.'
+        :/ya pas/i.test(em)?'Esa hora ya pasó. Por favor elige una hora más tarde u otro día.'
         :/Nombre/.test(em)?'Revisa tu nombre (solo letras).'
         :/Telefono no/.test(em)?'Revisa tu telefono (ej: +56 9 1234 5678).'
         :/Demasiadas/.test(em)?'Ya registraste varias reservas hoy. Escribenos por WhatsApp.'
         :'No pudimos registrar la reserva. Intenta nuevamente o escribenos por WhatsApp.';
-      mostrarErrorServidor(em,txt); if(/completo/i.test(em)){await cargarOcupados();goStep(3);} return;
+      mostrarErrorServidor(em,txt); if(/completo|ya pas/i.test(em)){await cargarOcupados();goStep(3);} return;
     }
   }catch(e){console.error(e);bkAviso(4,'Sin conexión','No pudimos conectarnos. Revisa tu internet e intenta nuevamente.');return;}
   // Notificar a Wilfredo via Make webhook

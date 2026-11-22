@@ -543,15 +543,6 @@ async function confirmBooking(){
       mostrarErrorServidor(em,txt); if(/completo|ya pas/i.test(em)){await cargarOcupados();goStep(3);} return;
     }
   }catch(e){console.error(e);bkAviso(4,'Sin conexión','No pudimos conectarnos. Revisa tu internet e intenta nuevamente.');return;}
-  // Notificar a Wilfredo via Make webhook
-  try{
-    fetch('https://hook.us2.make.com/4q4wkediu29kwejgiz7pdsthhmnomegz',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({nombre:nombre,telefono:tel,servicio:bk.svc,fecha:bk.date,hora:bk.time})
-    });
-  }catch(e){console.error(e);}
-
   // Armar mensaje WhatsApp
   var msg = 'Hola Wilfredo! Quiero reservar una hora:%0A'+
     '📋 *Servicio:* '+bk.svc+'%0A'+

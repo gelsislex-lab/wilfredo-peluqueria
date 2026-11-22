@@ -373,7 +373,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Jost',sans-serif;font-
 const SB_URL = 'https://mdxgwjjxufkkgcjrkfeu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keGd3amp4dWZra2djanJrZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MjQ3MTksImV4cCI6MjA5NDMwMDcxOX0.-Asw0hK89pMjk9-EYLw_iNJA8yNKXOumlvSG5kHr6pY';
 const sb = supabase.createClient(SB_URL, SB_KEY);
-const PWD = 'Ulmo2026';
+const ADMIN_EMAIL = 'panel@wilfredo-peluqueria.cl';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const DS = ['dom','lun','mar','mie','jue','vie','sab'];
@@ -387,22 +387,35 @@ function escAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')
 function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2600); }
 
 // ── LOGIN ──
-function checkPwd(){
-  if(document.getElementById('pwd-input').value===PWD){
-    localStorage.setItem('wf_ok','1');
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('admin-screen').style.display='block';
-    loadHoy();
-  } else {
-    document.getElementById('pwd-err').style.display='block';
-    document.getElementById('pwd-input').value='';
-  }
+function mostrarPanel(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-screen').style.display='block';
+  loadHoy();
 }
-function salir(){
+async function checkPwd(){
+  var inp=document.getElementById('pwd-input'), err=document.getElementById('pwd-err');
+  var btn=document.querySelector('.btn-login');
+  err.style.display='none'; btn.disabled=true; btn.textContent='Entrando...';
+  var r=await sb.auth.signInWithPassword({email:ADMIN_EMAIL,password:inp.value});
+  btn.disabled=false; btn.textContent='Entrar';
+  if(r.error||!r.data||!r.data.session){
+    err.style.display='block'; inp.value=''; return;
+  }
+  inp.value='';
+  mostrarPanel();
+}
+async function salir(){
+  try{ await sb.auth.signOut(); }catch(e){}
   localStorage.removeItem('wf_ok');
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('admin-screen').style.display='none';
 }
+sb.auth.onAuthStateChange(function(ev){
+  if(ev==='SIGNED_OUT'){
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('admin-screen').style.display='none';
+  }
+});
 document.getElementById('pwd-input').addEventListener('keydown',function(e){if(e.key==='Enter')checkPwd();});
 
 // ── NAV ──
@@ -1356,8 +1369,10 @@ function pdfABase64(file){
   });
 }
 
-function enviarOCR(imgs){
-  fetch(OCR_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY},body:JSON.stringify({imagenes:imgs})})
+async function enviarOCR(imgs){
+  var ses=(await sb.auth.getSession()).data.session;
+  var tk=ses?ses.access_token:'';
+  fetch(OCR_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk,'apikey':SB_KEY},body:JSON.stringify({imagenes:imgs})})
     .then(function(r){return r.text();})
     .then(function(t){
       var d=JSON.parse(t.replace(/```json|```/g,'').trim());
@@ -1486,11 +1501,10 @@ function renderVenta(){
 }
 
 // ── INIT ──
-if(localStorage.getItem('wf_ok')==='1'){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('admin-screen').style.display='block';
-  loadHoy();
-}
+localStorage.removeItem('wf_ok');
+sb.auth.getSession().then(function(r){
+  if(r.data&&r.data.session)mostrarPanel();
+});
 
 </script>
 </body>

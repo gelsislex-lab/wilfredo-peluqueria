@@ -288,14 +288,19 @@ function rCal(){
 }
 function bkM(d){bkC.m+=d;if(bkC.m>11){bkC.m=0;bkC.y++;}if(bkC.m<0){bkC.m=11;bkC.y--;}rCal();}
 function sDate(ds){bk.date=ds;rCal();document.getElementById('btn-n2').disabled=false;}
+async function cuposOcupados(svc,fecha){
+  var r=await fetch('https://mdxgwjjxufkkgcjrkfeu.supabase.co/rest/v1/rpc/wf_cupos_ocupados',{method:'POST',
+    headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON,'Content-Type':'application/json'},
+    body:JSON.stringify({p_servicio:svc,p_fecha:fecha})});
+  var d=await r.json();
+  return Array.isArray(d)?d:[];
+}
 async function cargarOcupados(){
   bk._conteo={};
   if(!bk.svc||!bk.date)return;
   try{
-    var url='https://mdxgwjjxufkkgcjrkfeu.supabase.co/rest/v1/wf_reservas?select=hora&servicio=eq.'+encodeURIComponent(bk.svc)+'&fecha=eq.'+bk.date;
-    var r=await fetch(url,{headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}});
-    var data=await r.json();
-    if(Array.isArray(data))data.forEach(function(x){var t=(x.hora||'').slice(0,5);bk._conteo[t]=(bk._conteo[t]||0)+1;});
+    var data=await cuposOcupados(bk.svc,bk.date);
+    data.forEach(function(x){bk._conteo[(x.hora||'').slice(0,5)]=Number(x.tomados)||0;});
   }catch(e){console.error(e);}
 }
 var SVC_COLOR=['Color','Shades EQ','Mechas','Visos','Babylight','Balayage'];
@@ -331,10 +336,9 @@ async function confirmBooking(){
   // Anti doble-reserva: revalidar cupos del bloque justo antes de confirmar
   var limite=(bk.svc==='Corte varon')?1:2;
   try{
-    var vurl='https://mdxgwjjxufkkgcjrkfeu.supabase.co/rest/v1/wf_reservas?select=hora&servicio=eq.'+encodeURIComponent(bk.svc)+'&fecha=eq.'+bk.date+'&hora=eq.'+bk.time;
-    var vr=await fetch(vurl,{headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}});
-    var vd=await vr.json();
-    if(Array.isArray(vd)&&vd.length>=limite){
+    var vd=await cuposOcupados(bk.svc,bk.date);
+    var ya=0;vd.forEach(function(x){if((x.hora||'').slice(0,5)===bk.time)ya=Number(x.tomados)||0;});
+    if(ya>=limite){
       alert('Lo sentimos, ese horario acaba de completarse. Por favor elige otro.');
       await cargarOcupados();goStep(3);return;
     }
@@ -342,10 +346,19 @@ async function confirmBooking(){
   var dt=new Date(bk.date+'T12:00:00');
   var dl=DS[dt.getDay()].charAt(0).toUpperCase()+DS[dt.getDay()].slice(1)+' '+dt.getDate()+' de '+MONTHS[dt.getMonth()];
   try{
-    await fetch('https://mdxgwjjxufkkgcjrkfeu.supabase.co/rest/v1/wf_reservas',{method:'POST',
+    var ins=await fetch('https://mdxgwjjxufkkgcjrkfeu.supabase.co/rest/v1/wf_reservas',{method:'POST',
       headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keGd3amp4dWZra2djanJrZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MjQ3MTksImV4cCI6MjA5NDMwMDcxOX0.-Asw0hK89pMjk9-EYLw_iNJA8yNKXOumlvSG5kHr6pY','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keGd3amp4dWZra2djanJrZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MjQ3MTksImV4cCI6MjA5NDMwMDcxOX0.-Asw0hK89pMjk9-EYLw_iNJA8yNKXOumlvSG5kHr6pY','Content-Type':'application/json','Prefer':'return=minimal'},
       body:JSON.stringify({nombre:nombre,telefono:tel,servicio:bk.svc,fecha:bk.date,hora:bk.time,estado:'pendiente'})});
-  }catch(e){console.error(e);}
+      if(!ins.ok){
+      var em='';try{em=(await ins.json()).message||'';}catch(_){}
+      var txt=/completo/i.test(em)?'Lo sentimos, ese horario acaba de completarse. Por favor elige otro.'
+        :/Nombre/.test(em)?'Revisa tu nombre (solo letras).'
+        :/Telefono no/.test(em)?'Revisa tu telefono (ej: +56 9 1234 5678).'
+        :/Demasiadas/.test(em)?'Ya registraste varias reservas hoy. Escribenos por WhatsApp.'
+        :'No pudimos registrar la reserva. Intenta nuevamente o escribenos por WhatsApp.';
+      alert(txt); if(/completo/i.test(em)){await cargarOcupados();goStep(3);} return;
+    }
+  }catch(e){console.error(e);alert('Sin conexion. Intenta nuevamente.');return;}
   // Notificar a Wilfredo via Make webhook
   try{
     fetch('https://hook.us2.make.com/4q4wkediu29kwejgiz7pdsthhmnomegz',{
